@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class hotpink {
 
@@ -21,7 +24,97 @@ class hotpink {
     public static function deSQLite($basededatos) {
         return new SQLiteConverter($basededatos);
     }
+    
+    #Verificamos que el login es autentico
+    private static function verificarLogin() {
+        if (!isset($_SESSION['autenticado']) || $_SESSION['autenticado'] !== true) {
+            header('Location: login.php');
+            exit;
+        }
+    }
+
+    #Comprueba si hay un usuario regitrado
+    public static function login($usuario, $contrasena) {
+        $archivo_usuarios = 'usuarios.json';
+        if (!file_exists($archivo_usuarios)) {
+            return false;
+        }
+        #Una vez decoficado el JSON nos permite que el usuario cargue
+        $usuarios = json_decode(file_get_contents($archivo_usuarios), true);
+        
+        if (isset($usuarios[$usuario]) && password_verify($contrasena, $usuarios[$usuario])) {
+            $_SESSION['autenticado'] = true;
+            $_SESSION['usuario'] = $usuario;
+            return true;
+        }
+        return false;
+    }
+    #Para cerrar sesion
+    public static function logout() {
+        session_destroy();
+        header('Location: login.php');
+        exit;
+    }
+    
+    #Convertidor de archivo 
+    public static function convertirArchivo($formato_salida, $nombre_archivo) {
+        self::verificarLogin();
+        
+        $carpeta_salida = 'conversiones/' . $_SESSION['usuario'] . '/';
+        if (!file_exists($carpeta_salida)) {
+            mkdir($carpeta_salida, 0777, true);
+        }
+
+        $ruta_completa = $carpeta_salida . $nombre_archivo;
+        
+        $converter = self::deMySQL("localhost", "tienda", "prueba", "prueba", "productos");
+        
+        #Casos de formatos de salidas que tenemos dispponibles 
+        switch($formato_salida) {
+            case 'csv':
+                $converter->aCSV($ruta_completa);
+                break;
+            case 'json':
+                $converter->aJSON($ruta_completa);
+                break;
+            case 'xml':
+                $converter->aXML($ruta_completa);
+                break;
+            case 'sqlite':
+                $converter->aSQLite($ruta_completa);
+                break;
+        }
+        return $ruta_completa;
+    }
+    
+    #Registro de ususarios
+    public static function registrarUsuario($usuario, $password, $confirmar_password) {
+        if ($password !== $confirmar_password) {
+            return false;
+        }
+
+        $archivo_usuarios = 'usuarios.json';
+        $usuarios = [];
+        
+        if (file_exists($archivo_usuarios)) {
+            $usuarios = json_decode(file_get_contents($archivo_usuarios), true) ?? [];
+        }
+
+        // Verificar si el usuario ya existe
+        if (isset($usuarios[$usuario])) {
+            return false;
+        }
+
+        // Agregar nuevo usuario
+        $usuarios[$usuario] = password_hash($password, PASSWORD_DEFAULT);
+        
+        // Guardar usuarios actualizados
+        file_put_contents($archivo_usuarios, json_encode($usuarios));
+        
+        return true;
+    }
 }
+# Obtiene la información que procederá a convertirse
 
 abstract class Conversor {
     protected $data;
@@ -29,13 +122,13 @@ abstract class Conversor {
     public function __construct($data) {
         $this->data = $data;
     }
-
+  
     protected function getPDOConnection($dsn, $user, $password) {
         $pdo = new PDO($dsn, $user, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
-
+    
     protected function crearTabla($pdo, $nombreTabla, $columnas) {
         $definicionesColumnas = implode(", ", array_map(fn($col) => "`$col` TEXT", $columnas));
         $sql = "CREATE TABLE IF NOT EXISTS `$nombreTabla` ($definicionesColumnas)";
@@ -68,6 +161,7 @@ abstract class Conversor {
     }
 }
 
+# Formato JSON
 class JSONConverter extends Conversor {
     public function aCSV($salida, $separador = ",") {
         $f = fopen($salida, "w");
@@ -110,6 +204,7 @@ class JSONConverter extends Conversor {
     }
 }
 
+#Conversor a CSV 
 class CSVConverter extends Conversor {
     private $separador;
 
@@ -164,6 +259,7 @@ class CSVConverter extends Conversor {
     }
 }
 
+# Formato XML
 class XMLConverter extends Conversor {
     public function __construct($entrada) {
         parent::__construct($this->parseXML());
@@ -211,6 +307,7 @@ class XMLConverter extends Conversor {
     }
 }
 
+#Formato MySQL
 class MySQLConverter extends Conversor {
     private $servidor;
     private $usuario;
@@ -271,6 +368,7 @@ class MySQLConverter extends Conversor {
     }
 }
 
+# Formato Sqlite
 class SQLiteConverter extends Conversor {
     private $basededatos;
 
