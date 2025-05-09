@@ -207,3 +207,14 @@ La documentación técnica se encuentra en el archivo README.md y cubre:
 - Frontend: HTML5, Bootstrap
 - Bases de datos: MySQL, SQLite
 - Formatos: JSON, CSV, XML
+### Version 1.0
+- version inicial del software
+- conversion de datos en Json,CSV,XML,Mysql,Sqlite
+- Interfaz de usuario basad0 en HTML5
+
+### version 2.0
+- Interfaz de usuario mejorada con Bootstrap
+- Manejo de errores y exepciones
+- Formulario de PDO especificando la base de datos deseada
+- Generacion de archivo de salida en el directorio especificado por el usuario 
+
