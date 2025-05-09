@@ -106,13 +106,7 @@ El proyecto implementa:
 - Protocolo HTTP/HTTPS para la interfaz web
 - Conexiones PDO para MySQL
 - Manejo de sesiones PHP para autenticación
-### 4. Sistema de Copias de Seguridad
-No se observa implementación directa de copias de seguridad en el código. Se recomienda implementar:
-
-- Backup automático de la base de datos
-- Respaldo de archivos de usuario en conversiones/
-- Backup del archivo usuarios.json
-### 5. Medidas de Seguridad e Integridad de Datos
+### 4. Medidas de Seguridad e Integridad de Datos
 El código implementa varias medidas de seguridad:
 
 - Uso de PDO con prepared statements para prevenir SQL injection
@@ -129,8 +123,6 @@ El sistema implementa:
 - Directorios específicos por usuario para almacenar conversiones
 - Permisos de acceso basados en sesiones PHP
 ### 7. Documentación Técnica
-La documentación técnica se encuentra en el archivo README.md y cubre:
-
 - Elementos fundamentales del código
 - Estructuras de control
 - Paradigma de programación orientado a objetos
