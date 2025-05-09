@@ -152,9 +152,9 @@ La documentación técnica se encuentra en el archivo README.md y cubre:
 - Uso de herencia y polimorfismo para las clases conversoras
 - Implementación de clase abstracta Conversor como base para extensibilidad
 ### Documentación Técnica
-- Documentación principal en formato Markdown (README.md)
 - Documentación de clases y métodos en el código fuente
 - Estructura clara de la documentación con secciones bien definidas
+
 # Bases de Datos
 ### Sistema Gestor Seleccionado
 - MySQL como base de datos principal
@@ -211,7 +211,6 @@ La documentación técnica se encuentra en el archivo README.md y cubre:
 - version inicial del software
 - conversion de datos en Json,CSV,XML,Mysql,Sqlite
 - Interfaz de usuario basad0 en HTML5
-
 ### version 2.0
 - Interfaz de usuario mejorada con Bootstrap
 - Manejo de errores y exepciones
